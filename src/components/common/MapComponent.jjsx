@@ -1,0 +1,24 @@
+import React from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+
+const MapComponent = ({ sensors }) => {
+  return (
+    <MapContainer center={[28.61, 77.20]} zoom={5} style={{ height: '400px', width: '100%' }}>
+      <TileLayer
+        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+      />
+      {sensors.map((sensor, index) => (
+        <Marker key={index} position={sensor.coords}>
+          <Popup>
+            <strong>{sensor.name}</strong><br />
+            Temp: {sensor.temp}°C<br />
+            Humidity: {sensor.humidity}%
+          </Popup>
+        </Marker>
+      ))}
+    </MapContainer>
+  );
+};
+
+export default MapComponent;
