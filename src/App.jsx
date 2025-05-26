@@ -3,12 +3,15 @@ import Sidebar from './components/admin/Sidebar'; // Adjust path as needed
 import Dashboard from './pages/admin/Dashboard';
 // import RealTime from './pages/RealTime';
 // import History from './pages/History';
-// import Map from './pages/Map';
+import MapPage from './pages/admin/MapPage';
 // import Analysis from './pages/Analysis';
 // import User from './pages/User';
 // import SensorInfo from './pages/SensorInfo';
 // import SensorActivity from './pages/SensorActivity';
 // import Profile from './pages/Profile';
+import 'leaflet/dist/leaflet.css';
+import SensorMap from './pages/admin/SensorMap';
+
 
 const App = () => {
   const [activeSection, setActiveSection] = useState('dashboard');
@@ -38,13 +41,7 @@ const App = () => {
           </div>
         );
       case 'map':
-        return (
-          <div>
-            <h1>Map</h1>
-            <p>Geographic visualization...</p>
-            {/* Replace with your actual Map component */}
-          </div>
-        );
+        return <SensorMap />;
       case 'analysis':
         return (
           <div>

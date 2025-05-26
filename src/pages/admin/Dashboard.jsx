@@ -55,77 +55,32 @@ const LiveChart = ({ data, title, color = "#2563eb", unit }) => (
   </div>
 );
 
-const MapVisualization = ({ activeSensor }) => {
-  const sensorCoordinates = [
-    { id: 1, x: '20%', y: '30%', location: 'Delhi' },
-    { id: 2, x: '75%', y: '40%', location: 'Noida' },
-    { id: 3, x: '15%', y: '70%', location: 'Ghaziabad' },
-    { id: 4, x: '50%', y: '60%', location: 'Gurugram' },
-    { id: 5, x: '80%', y: '75%', location: 'faridabad' },
-  ];
-
-  return (
-    <div className="map-card">
-      <h3 className="map-title">Sensor Network</h3>
-      <div className="map-container">
-        {sensorCoordinates.map((sensor) => (
-          <div
-            key={sensor.id}
-            className={`sensor-marker ${sensor.id === activeSensor ? 'active' : ''}`}
-            style={{
-              left: sensor.x,
-              top: sensor.y,
-            }}
-            title={`${sensor.location} (Sensor ${sensor.id})`}
-          />
-        ))}
-      </div>
-      <div className="map-legend">
-        <div className="legend-item">
-          <div className="legend-dot legend-online"></div>
-          <span>Online</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-dot legend-offline"></div>
-          <span>Offline</span>
-        </div>
-        <div className="legend-item">
-          <div className="legend-dot legend-active"></div>
-          <span>Active</span>
-        </div>
-      </div>
-    </div>
-  );
-};
-
 const SensorDetails = ({ activeSensor }) => {
-  const sensorInfo = {
-    1: { location: 'Delhi', status: 'Online', lastReading: '10:26:46 am', uptime: '99.8%' },
-    2: { location: 'Noida', status: 'Online', lastReading: '10:26:42 am', uptime: '99.7%' },
-    3: { location: 'Ghaziabad', status: 'Online', lastReading: '10:26:45 am', uptime: '99.9%' },
-    4: { location: 'Gurugram', status: 'Online', lastReading: '10:26:43 am', uptime: '99.6%' },
-    5: { location: 'Faridabad', status: 'Online', lastReading: '10:26:47 am', uptime: '99.5%' },
+  const sensorDetails = {
+    1: { location: "Building A", status: "Online", lastUpdated: "Just now" },
+    2: { location: "Building B", status: "Online", lastUpdated: "1 min ago" },
+    3: { location: "Park", status: "Online", lastUpdated: "2 mins ago" },
+    4: { location: "Warehouse", status: "Offline", lastUpdated: "5 mins ago" },
+    5: { location: "Office", status: "Online", lastUpdated: "Just now" }
   };
 
   return (
     <div className="sensor-details">
-      <h4>Sensor ID Details</h4>
+      <h4>Sensor Details</h4>
       <div className="details-list">
         <div className="detail-row">
           <span className="detail-label">Location:</span>
-          <span className="detail-value">{sensorInfo[activeSensor].location}</span>
+          <span className="detail-value">{sensorDetails[activeSensor].location}</span>
         </div>
         <div className="detail-row">
           <span className="detail-label">Status:</span>
-          <span className="detail-value status-online">{sensorInfo[activeSensor].status}</span>
+          <span className={`detail-value ${sensorDetails[activeSensor].status === "Online" ? "status-online" : ""}`}>
+            {sensorDetails[activeSensor].status}
+          </span>
         </div>
         <div className="detail-row">
-          <span className="detail-label">Last Reading:</span>
-          <span className="detail-value">{sensorInfo[activeSensor].lastReading}</span>
-        </div>
-        <div className="detail-row">
-          <span className="detail-label">Uptime:</span>
-          <span className="detail-value">{sensorInfo[activeSensor].uptime}</span>
+          <span className="detail-label">Last Updated:</span>
+          <span className="detail-value">{sensorDetails[activeSensor].lastUpdated}</span>
         </div>
       </div>
     </div>
@@ -134,23 +89,65 @@ const SensorDetails = ({ activeSensor }) => {
 
 const SearchLocations = () => {
   const locations = [
-    { name: 'Delhi', value: 52 },
-    { name: 'Noida', value: 54 },
-    { name: 'Ghaziabad', value: 48 },
-    { name: 'Gurugram', value: 45 },
-    { name: 'Faridabad', value: 50 },
+    { id: 1, name: "Building A", distance: "0.2 km" },
+    { id: 2, name: "Building B", distance: "0.5 km" },
+    { id: 3, name: "Park", distance: "1.2 km" },
+    { id: 4, name: "Warehouse", distance: "2.1 km" },
+    { id: 5, name: "Office", distance: "0.8 km" }
   ];
 
   return (
     <div className="search-locations">
-      <h4>Search Locations</h4>
+      <h4>Nearby Locations</h4>
       <div className="location-list">
-        {locations.map((location, index) => (
-          <div key={index} className="location-item">
+        {locations.map(location => (
+          <div key={location.id} className="location-item">
             <span>{location.name}</span>
-            <span>{location.value}</span>
+            <span>{location.distance}</span>
           </div>
         ))}
+      </div>
+    </div>
+  );
+};
+
+const MapVisualization = ({ activeSensor }) => {
+  const sensorPositions = {
+    1: { top: "30%", left: "20%" },
+    2: { top: "50%", left: "40%" },
+    3: { top: "20%", left: "70%" },
+    4: { top: "70%", left: "60%" },
+    5: { top: "60%", left: "30%" }
+  };
+
+  return (
+    <div className="map-card">
+      <h4 className="map-title">Sensor Locations</h4>
+      <div className="map-container">
+        {[1, 2, 3, 4, 5].map(sensorId => (
+          <div
+            key={sensorId}
+            className={`sensor-marker ${activeSensor === sensorId ? "active" : ""}`}
+            style={{
+              top: sensorPositions[sensorId].top,
+              left: sensorPositions[sensorId].left
+            }}
+          />
+        ))}
+      </div>
+      <div className="map-legend">
+        <div className="legend-item">
+          <span className="legend-dot legend-active"></span>
+          <span>Active</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot legend-online"></span>
+          <span>Online</span>
+        </div>
+        <div className="legend-item">
+          <span className="legend-dot legend-offline"></span>
+          <span>Offline</span>
+        </div>
       </div>
     </div>
   );
