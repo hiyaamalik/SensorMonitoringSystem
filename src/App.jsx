@@ -5,10 +5,10 @@ import RealTime from './pages/admin/RealTime';
 import History from './pages/admin/HistoryReport';
 import MapPage from './pages/admin/MapPage';
 import Analysis from './pages/admin/Analysis';
-// import User from './pages/User';
-// import SensorInfo from './pages/SensorInfo';
+import User from './pages/admin/Usermanagement';
+import SensorInfo from './pages/admin/SensorInformation';
 // import SensorActivity from './pages/SensorActivity';
-// import Profile from './pages/Profile';
+import Profile from './pages/admin/Profile';
 import 'leaflet/dist/leaflet.css';
 import SensorMap from './pages/admin/SensorMap';
 
@@ -34,37 +34,13 @@ const App = () => {
       case 'analysis':
         return <Analysis />;
       case 'user':
-        return (
-          <div>
-            <h1>User Management</h1>
-            <p>User table and management...</p>
-            {/* Replace with your actual User component */}
-          </div>
-        );
+        return <User />;
+      
       case 'sensorinfo':
-        return (
-          <div>
-            <h1>Sensor Information</h1>
-            <p>Sensor details and specifications...</p>
-            {/* Replace with your actual SensorInfo component */}
-          </div>
-        );
-      case 'sensoractivity':
-        return (
-          <div>
-            <h1>Sensor Management</h1>
-            <p>Sensor status and activity logs...</p>
-            {/* Replace with your actual SensorActivity component */}
-          </div>
-        );
+        return <SensorInfo />;
+      
       case 'profile':
-        return (
-          <div>
-            <h1>My Profile</h1>
-            <p>User profile information...</p>
-            {/* Replace with your actual Profile component */}
-          </div>
-        );
+        return <Profile />;
       default:
         return (
           <div>
