@@ -2,23 +2,20 @@ import React from 'react';
 
 const Sidebar = ({ activeSection, onSectionChange }) => {
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'realtime', label: 'Real Time', icon: '📈' },
-    { id: 'history', label: 'History & Report', icon: '📋' },
-    { id: 'map', label: 'Map', icon: '🗺️' },
-    { id: 'analysis', label: 'Analysis', icon: '📊' },
-    { id: 'user', label: 'User', icon: '👤' },
-    { id: 'sensorinfo', label: 'Sensor Information', icon: '🔧' },
-    { id: 'sensoractivity', label: 'Sensor Activity', icon: '🔋' },
-    { id: 'profile', label: 'My Profile', icon: '👨‍💼' },
-    { id: 'logout', label: 'Log out', icon: '🚪' }
+    { id: 'dashboard', label: 'Dashboard' },
+    { id: 'realtime', label: 'Real Time' },
+    { id: 'history', label: 'History & Report' },
+    { id: 'map', label: 'Map' },
+    { id: 'analysis', label: 'Analysis' },
+    { id: 'user', label: 'User Management' },
+    { id: 'sensoractivity', label: 'Sensor Management' },
+    { id: 'profile', label: 'My Profile' },
+    { id: 'logout', label: 'Log out' }
   ];
 
   const handleItemClick = (itemId) => {
     if (itemId === 'logout') {
-      // Handle logout logic here
       console.log('Logging out...');
-      // You can add actual logout functionality here
       return;
     }
     onSectionChange(itemId);
@@ -29,37 +26,19 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
       style={{
         width: '200px',
         height: '100vh',
-        background: '#1976d2',
+        background: '#8691b2',
         position: 'fixed',
         top: 0,
         left: 0,
         padding: '0',
         boxShadow: '2px 0 5px rgba(0,0,0,0.1)',
-        zIndex: 1000
+        zIndex: 1000,
+        overflow: 'hidden', // Prevent any overflow
+        boxSizing: 'border-box' // Include padding in width
       }}
     >
-      {/* Header */}
-      <div
-        style={{
-          padding: '20px 16px',
-          borderBottom: '1px solid rgba(255,255,255,0.1)',
-          marginBottom: '10px'
-        }}
-      >
-        <h3
-          style={{
-            margin: 0,
-            color: 'white',
-            fontSize: '18px',
-            fontWeight: 'bold'
-          }}
-        >
-          Dashboard
-        </h3>
-      </div>
-
       {/* Navigation Items */}
-      <div style={{ padding: '0 8px' }}>
+      <div style={{ padding: '0 8px', marginTop: '20px', width: '100%' }}>
         {menuItems.map((item) => (
           <div
             key={item.id}
@@ -76,7 +55,12 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
               transition: 'all 0.2s ease',
               fontSize: '14px',
               fontWeight: activeSection === item.id ? '600' : '400',
-              borderLeft: activeSection === item.id ? '3px solid white' : '3px solid transparent'
+              borderLeft: activeSection === item.id ? '3px solid white' : '3px solid transparent',
+              whiteSpace: 'nowrap', // Prevent text wrapping
+              overflow: 'hidden', // Hide overflow
+              textOverflow: 'ellipsis', // Show ellipsis if text is too long
+              width: '100%', // Force full width
+              boxSizing: 'border-box' // Include padding in width
             }}
             onMouseEnter={(e) => {
               if (activeSection !== item.id) {
