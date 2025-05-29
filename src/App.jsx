@@ -2,12 +2,10 @@ import React, { useState } from 'react';
 import Sidebar from './components/admin/Sidebar'; // Adjust path as needed
 import Dashboard from './pages/admin/Dashboard';
 import RealTime from './pages/admin/RealTime';
-import History from './pages/admin/HistoryReport';
-import MapPage from './pages/admin/MapPage';
+import History from './pages/admin/HistoryReport'; // Ensure the file is named 'HistoryReport.jsx' or adjust the import to match the actual file name, e.g., './pages/admin/History' if the file is 'History.jsx'
 import Analysis from './pages/admin/Analysis';
 import User from './pages/admin/Usermanagement';
-import SensorInfo from './pages/admin/SensorInformation';
-// import SensorActivity from './pages/SensorActivity';
+import SensorActivity from './pages/admin/SensorActivity';
 import Profile from './pages/admin/Profile';
 import 'leaflet/dist/leaflet.css';
 import SensorMap from './pages/admin/SensorMap';
@@ -36,8 +34,9 @@ const App = () => {
       case 'user':
         return <User />;
       
-      case 'sensorinfo':
-        return <SensorInfo />;
+      case 'sensoractivity':
+        return <SensorActivity />;
+        
       
       case 'profile':
         return <Profile />;
