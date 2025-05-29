@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 import Sidebar from './components/admin/Sidebar'; // Adjust path as needed
 import Dashboard from './pages/admin/Dashboard';
-// import RealTime from './pages/RealTime';
-// import History from './pages/History';
+import RealTime from './pages/admin/RealTime';
+import History from './pages/admin/HistoryReport';
 import MapPage from './pages/admin/MapPage';
-// import Analysis from './pages/Analysis';
+import Analysis from './pages/admin/Analysis';
 // import User from './pages/User';
 // import SensorInfo from './pages/SensorInfo';
 // import SensorActivity from './pages/SensorActivity';
@@ -25,31 +25,14 @@ const App = () => {
       case 'dashboard':
         return <Dashboard />;
       case 'realtime':
-        return (
-          <div>
-            <h1>Real Time</h1>
-            <p>Real time sensor data...</p>
-            {/* Replace with your actual RealTime component */}
-          </div>
-        );
+        return  <RealTime />;
+        
       case 'history':
-        return (
-          <div>
-            <h1>History & Report</h1>
-            <p>Historical data and reports...</p>
-            {/* Replace with your actual History component */}
-          </div>
-        );
+        return <History />;
       case 'map':
         return <SensorMap />;
       case 'analysis':
-        return (
-          <div>
-            <h1>Analysis</h1>
-            <p>Data analysis and statistics...</p>
-            {/* Replace with your actual Analysis component */}
-          </div>
-        );
+        return <Analysis />;
       case 'user':
         return (
           <div>
@@ -69,7 +52,7 @@ const App = () => {
       case 'sensoractivity':
         return (
           <div>
-            <h1>Sensor Activity</h1>
+            <h1>Sensor Management</h1>
             <p>Sensor status and activity logs...</p>
             {/* Replace with your actual SensorActivity component */}
           </div>
