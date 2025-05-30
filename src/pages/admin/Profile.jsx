@@ -222,7 +222,7 @@ const Profile = () => {
           />
           
           <TextField
-            label={renderRequiredLabel("Employee Number")}
+            label={renderRequiredLabel("Employee ID")}
             variant="outlined"
             fullWidth
             value={formData.employeeNumber}
