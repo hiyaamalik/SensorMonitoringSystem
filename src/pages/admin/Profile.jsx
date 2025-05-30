@@ -358,7 +358,7 @@ const Profile = () => {
             App Version: 1.0.0
           </Typography>
           <Typography variant="body2" sx={{ mb: 2, color: '#666' }}>
-            Developer: Life.OS
+            Developer: CSIR NPL
           </Typography>
 
           <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
