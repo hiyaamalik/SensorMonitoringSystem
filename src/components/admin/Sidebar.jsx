@@ -1,4 +1,5 @@
 import React from 'react';
+import logo from '../../assets/image (9).png'; // Adjust the path as needed
 
 const Sidebar = ({ activeSection, onSectionChange }) => {
   const menuItems = [
@@ -33,12 +34,25 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
         padding: '0',
         boxShadow: '2px 0 5px rgba(0,0,0,0.1)',
         zIndex: 1000,
-        overflow: 'hidden', // Prevent any overflow
-        boxSizing: 'border-box' // Include padding in width
+        overflow: 'hidden',
+        boxSizing: 'border-box'
       }}
     >
+      {/* Logo */}
+      <div style={{ textAlign: 'center', padding: '20px 0' }}>
+        <img
+          src={logo}
+          alt="Logo"
+          style={{
+            maxWidth: '80%',
+            height: 'auto',
+            borderRadius: '8px'
+          }}
+        />
+      </div>
+
       {/* Navigation Items */}
-      <div style={{ padding: '0 8px', marginTop: '20px', width: '100%' }}>
+      <div style={{ padding: '0 8px', width: '100%' }}>
         {menuItems.map((item) => (
           <div
             key={item.id}
@@ -56,11 +70,11 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
               fontSize: '14px',
               fontWeight: activeSection === item.id ? '600' : '400',
               borderLeft: activeSection === item.id ? '3px solid white' : '3px solid transparent',
-              whiteSpace: 'nowrap', // Prevent text wrapping
-              overflow: 'hidden', // Hide overflow
-              textOverflow: 'ellipsis', // Show ellipsis if text is too long
-              width: '100%', // Force full width
-              boxSizing: 'border-box' // Include padding in width
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              width: '100%',
+              boxSizing: 'border-box'
             }}
             onMouseEnter={(e) => {
               if (activeSection !== item.id) {
@@ -73,9 +87,6 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
               }
             }}
           >
-            <span style={{ marginRight: '10px', fontSize: '16px' }}>
-              {item.icon}
-            </span>
             <span>{item.label}</span>
           </div>
         ))}
