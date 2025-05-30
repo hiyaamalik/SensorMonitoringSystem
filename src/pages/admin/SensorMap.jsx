@@ -123,8 +123,11 @@ export default SensorMap;
 const styles = {
   container: {
     width: '100%',
-    minHeight: '100vh',
-    backgroundColor: '#f0f4f8',
+    maxWidth: '1200px',
+    margin: '0 auto',
+    fontFamily: 'Arial, sans-serif',
+    backgroundColor: '#f5f5f5',
+    minHeight: '100vh'
   },
   header: {
     backgroundColor: '#1e3a8a',
