@@ -6,11 +6,11 @@ const Analysis = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const sensors = [
-    { id: 1, name: "Sensor 1", baseTemp: 24, baseHumidity: 65, location: "Building A" },
-    { id: 2, name: "Sensor 2", baseTemp: 26, baseHumidity: 68, location: "Building B" },
-    { id: 3, name: "Sensor 3", baseTemp: 22, baseHumidity: 70, location: "Park" },
-    { id: 4, name: "Sensor 4", baseTemp: 0, baseHumidity: 0, location: "Warehouse" },
-    { id: 5, name: "Sensor 5", baseTemp: 25, baseHumidity: 62, location: "Office" }
+    { id: 1, name: "Sensor 1 (CSIR - PME)", baseTemp: 24, baseHumidity: 65, location: "CSIR - PME" },
+    { id: 2, name: "Sensor 2 (CSIR - HRD)", baseTemp: 26, baseHumidity: 68, location: "CSIR - HRD" },
+    { id: 3, name: "Sensor 3 (CSIR - LIB)", baseTemp: 22, baseHumidity: 70, location: "CSIR - LIB" },
+    { id: 4, name: "Sensor 4 (CSIR - CAFETERIA)", baseTemp: 0, baseHumidity: 0, location: "CSIR - CAFETERIA" },
+    { id: 5, name: "Sensor 5 (CSIR - OPP WING)", baseTemp: 25, baseHumidity: 62, location: "CSIR - OPP WING)" }
   ];
 
   // Mock data generation for analysis based on selected date
@@ -115,21 +115,21 @@ const Analysis = () => {
         <h1 style={styles.headerTitle}>Analysis</h1>
       </div>
 
-      {/* Sensor Navigation Buttons */}
+      {/* Sensor Dropdown */}
       <div style={styles.sensorNavigation}>
-        {sensors.map(sensor => (
-          <button
-            key={sensor.id}
-            style={{
-              ...styles.sensorButton,
-              ...(activeSensor === sensor.id ? styles.activeSensorButton : {}),
-              ...(sensor.id === 4 ? styles.offlineSensorButton : {})
-            }}
-            onClick={() => setActiveSensor(sensor.id)}
-          >
-            {sensor.name}
-          </button>
-        ))}
+        <label htmlFor="sensor-select" style={styles.sensorLabel}>Select Sensor:</label>
+        <select
+          id="sensor-select"
+          value={activeSensor}
+          onChange={(e) => setActiveSensor(Number(e.target.value))}
+          style={styles.sensorDropdown}
+        >
+          {sensors.map(sensor => (
+            <option key={sensor.id} value={sensor.id}>
+              {sensor.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Main Content */}
@@ -291,33 +291,26 @@ const styles = {
   },
   sensorNavigation: {
     display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     gap: '10px',
-    margin: '20px',
-    justifyContent: 'center',
-    alignItems: 'center'
+    margin: '20px'
   },
-  sensorButton: {
-    backgroundColor: '#1e40af',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '6px',
-    cursor: 'pointer',
+  sensorLabel: {
+    fontWeight: 'normal',
     fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s ease',
-    flex: '1',
-    maxWidth: '200px',
-    minWidth: '150px'
+    color: '#374151',
+    marginRight: '4px',
+    whiteSpace: 'nowrap'
   },
-  activeSensorButton: {
-    backgroundColor: '#3b82f6',
-    transform: 'translateY(-1px)',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
-  },
-  offlineSensorButton: {
-    backgroundColor: '#6b7280',
-    cursor: 'not-allowed'
+  sensorDropdown: {
+    width: '250px',
+    padding: '10px',
+    fontSize: '14px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    backgroundColor: '#fff',
+    color: '#1f2937'
   },
   mainContent: {
     display: 'flex',

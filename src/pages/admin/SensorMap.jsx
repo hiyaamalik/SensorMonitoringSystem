@@ -1,9 +1,16 @@
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  useMap,
+  LayersControl,
+} from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 
-
+// Fix default icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '',
@@ -13,14 +20,14 @@ L.Icon.Default.mergeOptions({
 
 // Sensor data
 const sensors = [
-  { id: 1, name: 'Sensor 1 (CP)', lat: 28.6328, lng: 77.2196, status: 'active' },
-  { id: 2, name: 'Sensor 2 (Chandni Chowk)', lat: 28.656, lng: 77.231, status: 'active' },
-  { id: 3, name: 'Sensor 3 ', lat: 28.6448, lng: 77.216721, status: 'active' },
-  { id: 4, name: 'Sensor 4', lat: 28.65, lng: 77.22, status: 'active' },
-  { id: 5, name: 'Sensor 5 (CSIR-NPL)', lat: 28.6305, lng: 77.1710, status: 'inactive' }
+  { id: 1, name: 'Sensor 1 (CSIR - PME)', lat: 28.637267, lng: 77.170062, status: 'active' },
+  { id: 2, name: 'Sensor 2 (CSIR - HRD)', lat: 28.637140, lng: 77.170748, status: 'active' },
+  { id: 3, name: 'Sensor 3 (CSIR - LIB)', lat: 28.636357, lng: 77.170402, status: 'active' },
+  { id: 4, name: 'Sensor 4 (CSIR - CAFETERIA)', lat: 28.636459, lng: 77.170821, status: 'active' },
+  { id: 5, name: 'Sensor 5 (CSIR - OPP WING)', lat: 28.637197, lng: 77.171388, status: 'active' },
 ];
 
-// Auto fit to bounds
+// Auto-fit to bounds
 const FitBounds = ({ locations }) => {
   const map = useMap();
 
@@ -34,7 +41,7 @@ const FitBounds = ({ locations }) => {
   return null;
 };
 
-// Custom Marker Icons
+// Custom marker icons
 const getCustomIcon = (status) =>
   L.divIcon({
     className: '',
@@ -62,7 +69,7 @@ const SensorMap = () => {
           @keyframes pulse {
             0% {
               transform: scale(1);
-              box-shadow: 0 0 0 0 #154734 ;
+              box-shadow: 0 0 0 0 #154734;
             }
             70% {
               transform: scale(1.2);
@@ -92,10 +99,21 @@ const SensorMap = () => {
 
         <div style={styles.mapWrapper}>
           <MapContainer scrollWheelZoom={true} style={styles.map}>
-            <TileLayer
-              attribution='&copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-            />
+            <LayersControl position="topright">
+              <LayersControl.BaseLayer name="Street View">
+                <TileLayer
+                  attribution='&copy; OpenStreetMap contributors'
+                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+              </LayersControl.BaseLayer>
+
+              <LayersControl.BaseLayer checked name="Satellite View">
+                <TileLayer
+                  attribution='Tiles &copy; Esri'
+                  url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
+                />
+              </LayersControl.BaseLayer>
+            </LayersControl>
 
             {sensors.map(sensor => (
               <Marker
@@ -120,6 +138,7 @@ const SensorMap = () => {
 
 export default SensorMap;
 
+// Styles
 const styles = {
   container: {
     width: '100%',
@@ -127,7 +146,7 @@ const styles = {
     margin: '0 auto',
     fontFamily: 'Arial, sans-serif',
     backgroundColor: '#f5f5f5',
-    minHeight: '100vh'
+    minHeight: '100vh',
   },
   header: {
     backgroundColor: '#1e3a8a',
@@ -151,5 +170,5 @@ const styles = {
   map: {
     height: '100%',
     width: '100%',
-  }
+  },
 };

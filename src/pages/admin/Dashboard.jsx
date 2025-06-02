@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 
 const Dashboard = () => {
   const [activeSensor, setActiveSensor] = useState(1);
-  
+
   const sensors = [
-    { id: 1, name: "Sensor 1", temp: "24°C", humidity: "65%", status: "Online", location: "Building A" },
-    { id: 2, name: "Sensor 2", temp: "26°C", humidity: "68%", status: "Online", location: "Building B" },
-    { id: 3, name: "Sensor 3", temp: "22°C", humidity: "70%", status: "Online", location: "Park" },
-    { id: 4, name: "Sensor 4", temp: "--", humidity: "--", status: "Offline", location: "Warehouse" },
-    { id: 5, name: "Sensor 5", temp: "25°C", humidity: "62%", status: "Online", location: "Office" }
+    { id: 1, name: "Sensor 1 (CSIR - PME)", temp: "24°C", humidity: "65%", status: "Online", location: "CSIR - PME" },
+    { id: 2, name: "Sensor 2 (CSIR - HRD)", temp: "26°C", humidity: "68%", status: "Online", location: "CSIR - HRD" },
+    { id: 3, name: "Sensor 3 (CSIR - LIB)", temp: "22°C", humidity: "70%", status: "Online", location: "CSIR - LIB" },
+    { id: 4, name: "Sensor 4 (CSIR - CAFETERIA)", temp: "--", humidity: "--", status: "Offline", location: "CSIR - CAFETERIA" },
+    { id: 5, name: "Sensor 5 (CSIR - OPP WING)", temp: "25°C", humidity: "62%", status: "Online", location: "CSIR - OPP WING" }
   ];
 
   const activeSensorData = sensors.find(sensor => sensor.id === activeSensor);
@@ -19,7 +19,7 @@ const Dashboard = () => {
       <div style={styles.header}>
         <h1 style={styles.headerTitle}>Dashboard</h1>
       </div>
-      
+
       {/* Welcome Banner */}
       <div style={styles.welcomeBanner}>
         <div style={styles.welcomeContent}>
@@ -27,20 +27,21 @@ const Dashboard = () => {
         </div>
       </div>
 
-      {/* Sensor Navigation Buttons */}
+      {/* Sensor Dropdown */}
       <div style={styles.sensorNavigation}>
-        {sensors.map(sensor => (
-          <button
-            key={sensor.id}
-            style={{
-              ...styles.sensorButton,
-              ...(activeSensor === sensor.id ? styles.activeSensorButton : {})
-            }}
-            onClick={() => setActiveSensor(sensor.id)}
-          >
-            {sensor.name}
-          </button>
-        ))}
+        <label htmlFor="sensor-select" style={styles.sensorLabel}>Select Sensor:</label>
+        <select
+          id="sensor-select"
+          value={activeSensor}
+          onChange={(e) => setActiveSensor(Number(e.target.value))}
+          style={styles.sensorDropdown}
+        >
+          {sensors.map(sensor => (
+            <option key={sensor.id} value={sensor.id}>
+              {sensor.name}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Current Sensor Info */}
@@ -56,12 +57,12 @@ const Dashboard = () => {
           <div style={styles.metricLabel}>Current Temp</div>
           <div style={styles.metricValue}>{activeSensorData.temp}</div>
         </div>
-        
+
         <div style={styles.metricCard}>
           <div style={styles.metricLabel}>Current Humidity</div>
           <div style={styles.metricValue}>{activeSensorData.humidity}</div>
         </div>
-        
+
         <div style={styles.metricCard}>
           <div style={styles.metricLabel}>Last Update</div>
           <div style={styles.metricValue}>Just now</div>
@@ -111,29 +112,26 @@ const styles = {
   },
   sensorNavigation: {
     display: 'flex',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
     gap: '10px',
-    margin: '20px',
-    justifyContent: 'center',
-    alignItems: 'center'
+    margin: '20px'
   },
-  sensorButton: {
-    backgroundColor: '#1e40af',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '6px',
-    cursor: 'pointer',
+  sensorLabel: {
+    fontWeight: 'normal',
     fontSize: '14px',
-    fontWeight: '500',
-    transition: 'all 0.2s ease',
-    flex: '1',
-    maxWidth: '200px',
-    minWidth: '150px'
+    color: '#374151',
+    marginRight: '4px',
+    whiteSpace: 'nowrap'
   },
-  activeSensorButton: {
-    backgroundColor: '#3b82f6',
-    transform: 'translateY(-1px)',
-    boxShadow: '0 4px 8px rgba(0,0,0,0.2)'
+  sensorDropdown: {
+    width: '250px',
+    padding: '10px',
+    fontSize: '14px',
+    borderRadius: '6px',
+    border: '1px solid #ccc',
+    backgroundColor: '#fff',
+    color: '#1f2937'
   },
   sensorInfo: {
     backgroundColor: '#d1d5db',
