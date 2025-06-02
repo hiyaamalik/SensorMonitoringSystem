@@ -3,7 +3,7 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 
-// Remove default marker icons
+
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '',
@@ -13,9 +13,9 @@ L.Icon.Default.mergeOptions({
 
 // Sensor data
 const sensors = [
-  { id: 1, name: 'Sensor 1', lat: 28.6328, lng: 77.2196, status: 'active' },
-  { id: 2, name: 'Sensor 2', lat: 28.656, lng: 77.231, status: 'active' },
-  { id: 3, name: 'Sensor 3', lat: 28.6448, lng: 77.216721, status: 'active' },
+  { id: 1, name: 'Sensor 1 (CP)', lat: 28.6328, lng: 77.2196, status: 'active' },
+  { id: 2, name: 'Sensor 2 (Chandni Chowk)', lat: 28.656, lng: 77.231, status: 'active' },
+  { id: 3, name: 'Sensor 3 ', lat: 28.6448, lng: 77.216721, status: 'active' },
   { id: 4, name: 'Sensor 4', lat: 28.65, lng: 77.22, status: 'active' },
   { id: 5, name: 'Sensor 5 (CSIR-NPL)', lat: 28.6305, lng: 77.1710, status: 'inactive' }
 ];
@@ -62,7 +62,7 @@ const SensorMap = () => {
           @keyframes pulse {
             0% {
               transform: scale(1);
-              box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+              box-shadow: 0 0 0 0 #154734 ;
             }
             70% {
               transform: scale(1.2);

@@ -1,22 +1,41 @@
 import React from 'react';
 import logo from '../../assets/image (9).png'; // Adjust the path as needed
 
-const Sidebar = ({ activeSection, onSectionChange }) => {
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard' },
-    { id: 'realtime', label: 'Real Time' },
-    { id: 'history', label: 'History & Report' },
-    { id: 'map', label: 'Map' },
-    { id: 'analysis', label: 'Analysis' },
-    { id: 'user', label: 'User Management' },
-    { id: 'sensoractivity', label: 'Sensor Management' },
-    { id: 'profile', label: 'My Profile' },
-    { id: 'logout', label: 'Log out' }
-  ];
+const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) => {
+  // Filter menu items based on user role
+  const getMenuItems = () => {
+    const baseItems = [
+      { id: 'dashboard', label: 'Dashboard' },
+      { id: 'realtime', label: 'Real Time' },
+      { id: 'history', label: 'History & Report' },
+      { id: 'map', label: 'Map' },
+      { id: 'analysis', label: 'Analysis' },
+      { id: 'profile', label: 'My Profile' }
+    ];
+
+    // Add admin-only items
+    if (userRole === 'admin') {
+      baseItems.splice(-1, 0, // Insert before 'My Profile'
+        { id: 'user', label: 'User Management' },
+        { id: 'sensoractivity', label: 'Sensor Management' }
+      );
+    }
+
+    // Add logout at the end
+    baseItems.push({ id: 'logout', label: 'Log out' });
+
+    return baseItems;
+  };
+
+  const menuItems = getMenuItems();
 
   const handleItemClick = (itemId) => {
     if (itemId === 'logout') {
-      console.log('Logging out...');
+      if (onLogout) {
+        onLogout();
+      } else {
+        console.log('Logging out...');
+      }
       return;
     }
     onSectionChange(itemId);
@@ -51,6 +70,32 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
         />
       </div>
 
+      {/* User Info */}
+      {user && (
+        <div style={{ 
+          padding: '10px 16px', 
+          borderBottom: '1px solid rgba(255,255,255,0.2)',
+          marginBottom: '10px'
+        }}>
+          <div style={{ 
+            color: 'white', 
+            fontSize: '12px', 
+            textAlign: 'center',
+            fontWeight: '500'
+          }}>
+            Welcome, {user.name}
+          </div>
+          <div style={{ 
+            color: 'rgba(255,255,255,0.7)', 
+            fontSize: '10px', 
+            textAlign: 'center',
+            textTransform: 'capitalize'
+          }}>
+            {userRole}
+          </div>
+        </div>
+      )}
+
       {/* Navigation Items */}
       <div style={{ padding: '0 8px', width: '100%' }}>
         {menuItems.map((item) => (
@@ -64,7 +109,7 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
               margin: '2px 0',
               borderRadius: '8px',
               cursor: 'pointer',
-              color: 'white',
+              color: item.id === 'logout' ? '#ffcccb' : 'white',
               backgroundColor: activeSection === item.id ? 'rgba(255,255,255,0.15)' : 'transparent',
               transition: 'all 0.2s ease',
               fontSize: '14px',
@@ -78,7 +123,9 @@ const Sidebar = ({ activeSection, onSectionChange }) => {
             }}
             onMouseEnter={(e) => {
               if (activeSection !== item.id) {
-                e.target.style.backgroundColor = 'rgba(255,255,255,0.08)';
+                e.target.style.backgroundColor = item.id === 'logout' 
+                  ? 'rgba(255, 255, 255, 0.94)' 
+                  : 'rgba(255,255,255,0.08)';
               }
             }}
             onMouseLeave={(e) => {

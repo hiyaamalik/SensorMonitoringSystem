@@ -225,7 +225,7 @@ const HistoryReport = () => {
       {/* Data Table Section */}
       <div style={styles.dataTableContainer}>
         <div style={styles.tableWrapper}>
-          <h3 style={styles.tableTitle}>Data Display in tabular form of selected time</h3>
+          
           <div style={styles.tableScrollContainer}>
             <table style={styles.table}>
               <thead>
