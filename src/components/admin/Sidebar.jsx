@@ -13,7 +13,7 @@ const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) =
       { id: 'profile', label: 'My Profile' }
     ];
 
-    // Add admin-only items
+    // Add admin-only items ONLY if user is admin
     if (userRole === 'admin') {
       baseItems.splice(-1, 0, // Insert before 'My Profile'
         { id: 'user', label: 'User Management' },
