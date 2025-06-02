@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import Sidebar from './components/admin/Sidebar'; 
+import Sidebar from './components/admin/Sidebar';
 import Dashboard from './pages/admin/Dashboard';
 import RealTime from './pages/admin/RealTime';
 import History from './pages/admin/HistoryReport';
@@ -11,7 +11,34 @@ import SensorMap from './pages/admin/SensorMap';
 import 'leaflet/dist/leaflet.css';
 import logoImage from './assets/image (9).png';
 
-const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
+// ---- Smart Captcha Generator ----
+function generateSmartCaptcha() {
+  const type = Math.random() < 0.5 ? 'text' : 'math';
+  if (type === 'math') {
+    const a = Math.floor(Math.random() * 9) + 1;
+    const b = Math.floor(Math.random() * 9) + 1;
+    const operator = Math.random() < 0.5 ? '+' : '-';
+    const question = `${a} ${operator} ${b}`;
+    let answer = operator === '+' ? a + b : a - b;
+    return { question, answer: answer.toString() };
+  } else {
+    const text = Math.random().toString(36).substring(2, 7).toUpperCase();
+    return { question: text, answer: text };
+  }
+}
+
+// ---- PHP Auth Request Helper ----
+async function authPhpRequest(payload) {
+  const res = await fetch('https://lostdevs.io/ctrl2/ldauth.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams(payload).toString(),
+    credentials: 'include'
+  });
+  return res.json();
+}
+
+const CSIRSensorSyncPortal = ({ onAuthSuccess }) => {
   const [authMode, setAuthMode] = useState('login');
   const [formData, setFormData] = useState({
     emailId: '',
@@ -21,9 +48,12 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
     captcha: ''
   });
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Array of image URLs for the carousel
+  const [captcha, setCaptcha] = useState(generateSmartCaptcha());
+  const [captchaVerified, setCaptchaVerified] = useState(null);
+
   const carouselImages = [
     "https://candela-ptb.de/wp-content/uploads/2021/01/NPL2.jpg",
     "https://www.nplindia.org/wp-content/uploads/2021/11/9.png",
@@ -33,11 +63,10 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentImageIndex((prevIndex) => 
+      setCurrentImageIndex((prevIndex) =>
         prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
       );
-    }, 7000); // Change image every 7 seconds
-
+    }, 7000);
     return () => clearInterval(interval);
   }, [carouselImages.length]);
 
@@ -46,40 +75,94 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       ...formData,
       [e.target.name]: e.target.value
     });
+    if (e.target.name === "captcha") setCaptchaVerified(null);
   };
 
-  const handleSubmit = (e) => {
+  const handleCaptchaVerify = () => {
+    if (formData.captcha.trim().toUpperCase() === captcha.answer.toUpperCase()) {
+      setCaptchaVerified(true);
+    } else {
+      setCaptchaVerified(false);
+    }
+  };
+
+  const handlePlayCaptchaAudio = () => {
+    window.speechSynthesis.cancel();
+    let question = captcha.question;
+    question = question.replace(/\+/g, ' plus ').replace(/-/g, ' minus ');
+    if (/^[A-Z0-9]+$/i.test(question) && question.length === 5) {
+      question = question.split('').join(' ');
+    }
+    const utterance = new window.SpeechSynthesisUtterance("Captcha. " + question);
+    utterance.rate = 0.9;
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
-
+    setSuccessMessage('');
+    if (formData.captcha.trim().toUpperCase() !== captcha.answer.toUpperCase()) {
+      setError('Invalid captcha. Please try again.');
+      setCaptcha(generateSmartCaptcha());
+      setFormData({ ...formData, captcha: '' });
+      setCaptchaVerified(null);
+      window.speechSynthesis.cancel();
+      return;
+    }
     if (authMode === 'login') {
-      // Simple authentication logic
-      if (formData.emailId === 'admin@gmail.com' && formData.password === 'admin') {
-        onAuthSuccess('admin', { email: formData.emailId, name: 'Administrator' });
-      } else if (formData.emailId === 'user@gmail.com' && formData.password === 'user') {
-        onAuthSuccess('user', { email: formData.emailId, name: 'User' });
+      if (!formData.emailId || !formData.password) {
+        setError('Please fill in all required fields.');
+        return;
+      }
+      const data = await authPhpRequest({
+        action: 'login',
+        email: formData.emailId,
+        password: formData.password
+      });
+      if (data.success) {
+        onAuthSuccess(data.role === "admin" ? "admin" : "user", {
+          email: data.email,
+          name: data.name || "User"
+        });
       } else {
-        setError('Invalid credentials. Please try again.');
+        setError(data.error || 'Invalid credentials. Please try again.');
       }
     } else {
-      if (formData.emailId && formData.password && formData.confirmPassword) {
-        if (formData.password === formData.confirmPassword) {
-          onAuthSuccess('user', { email: formData.emailId, name: formData.fullName || 'User' });
-        } else {
-          setError('Passwords do not match.');
-        }
-      } else {
+      // Registration
+      if (!formData.emailId || !formData.password || !formData.confirmPassword) {
         setError('Please fill in all required fields.');
+        return;
+      }
+      if (formData.password !== formData.confirmPassword) {
+        setError('Passwords do not match.');
+        return;
+      }
+      const data = await authPhpRequest({
+        action: 'register',
+        email: formData.emailId,
+        password: formData.password,
+        fullName: formData.fullName
+      });
+      if (data.success) {
+        setSuccessMessage('User created successfully. Please log in.');
+        setAuthMode('login');
+        setFormData({
+          emailId: formData.emailId,
+          password: '',
+          fullName: '',
+          confirmPassword: '',
+          captcha: ''
+        });
+        setCaptcha(generateSmartCaptcha());
+        setCaptchaVerified(null);
+      } else {
+        setError(data.error || 'Registration failed. Please try again.');
       }
     }
   };
 
-  const generateCaptcha = () => {
-    return Math.random().toString(36).substring(2, 7).toUpperCase();
-  };
-
-  const [captchaText] = useState(generateCaptcha());
-
+  // ---- Styles ----
   const styles = {
     container: {
       minHeight: '100vh',
@@ -119,9 +202,7 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       height: '100%',
       objectFit: 'cover'
     },
-    headerText: {
-      color: 'white'
-    },
+    headerText: { color: 'white' },
     headerTextHindi: {
       fontSize: '18px',
       fontWeight: 'bold',
@@ -157,12 +238,8 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       cursor: 'pointer',
       transition: 'background-color 0.3s'
     },
-    navButtonLeft: {
-      left: '16px'
-    },
-    navButtonRight: {
-      right: '16px'
-    },
+    navButtonLeft: { left: '16px' },
+    navButtonRight: { right: '16px' },
     imageContainer: {
       width: '100%',
       height: '80%',
@@ -170,7 +247,6 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       alignItems: 'center',
       justifyContent: 'center',
       padding: '16px',
-      
     },
     imageWrapper: {
       width: '100%',
@@ -230,18 +306,23 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       textAlign: 'center',
       fontSize: '14px'
     },
-    formGroup: {
-      marginBottom: '16px'
+    successMessage: {
+      backgroundColor: 'rgba(34,197,94,0.92)',
+      color: 'white',
+      padding: '10px',
+      borderRadius: '4px',
+      marginBottom: '16px',
+      textAlign: 'center',
+      fontSize: '14px'
     },
+    formGroup: { marginBottom: '16px' },
     label: {
       color: 'white',
       fontSize: '14px',
       display: 'block',
       marginBottom: '4px'
     },
-    required: {
-      color: '#fca5a5'
-    },
+    required: { color: '#fca5a5' },
     input: {
       width: '100%',
       padding: '8px 12px',
@@ -256,7 +337,7 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
     captchaContainer: {
       display: 'flex',
       gap: '8px',
-      alignItems: 'center'
+      alignItems: 'flex-end'
     },
     captchaInput: {
       flex: 1,
@@ -273,7 +354,27 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       padding: '8px 12px',
       borderRadius: '4px',
       display: 'flex',
-      alignItems: 'center'
+      flexDirection: 'column',
+      alignItems: 'flex-start',
+      gap: '2px'
+    },
+    captchaActionsRow: {
+      display: 'flex',
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: '8px',
+      marginTop: '6px',
+      justifyContent: 'space-between'
+    },
+    captchaActionsLeft: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
+    },
+    captchaActionsRight: {
+      display: 'flex',
+      alignItems: 'center',
+      gap: '8px'
     },
     captchaText: {
       color: 'black',
@@ -283,16 +384,36 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       textDecoration: 'line-through wavy'
     },
     refreshButton: {
-      background: 'rgba(255, 255, 255, 0.2)',
-      color: 'white',
-      padding: '8px 12px',
-      borderRadius: '4px',
+      background: '#fb923c',
       border: 'none',
       cursor: 'pointer',
-      transition: 'background-color 0.3s'
+      color: '#fff',
+      fontSize: 20,
+      outline: 'none',
+      borderRadius: '50%',
+      width: 32,
+      height: 32,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'background 0.2s'
+    },
+    audioButton: {
+      background: '#1e40af',
+      border: 'none',
+      cursor: 'pointer',
+      color: '#fff',
+      fontSize: 20,
+      outline: 'none',
+      borderRadius: '50%',
+      width: 32,
+      height: 32,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      transition: 'background 0.2s'
     },
     verifyButton: {
-      marginTop: '8px',
       fontSize: '12px',
       color: '#93c5fd',
       background: 'none',
@@ -329,17 +450,7 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       cursor: 'pointer',
       transition: 'background-color 0.3s'
     },
-    footer: {
-      height: '32px'
-    },
-    credentialsInfo: {
-      marginTop: '16px',
-      padding: '12px',
-      background: 'rgba(255, 255, 255, 0.1)',
-      borderRadius: '4px',
-      fontSize: '12px',
-      color: '#93c5fd'
-    },
+    footer: { height: '32px' },
     carouselDots: {
       position: 'absolute',
       bottom: '20px',
@@ -356,19 +467,14 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       cursor: 'pointer',
       transition: 'background-color 0.3s'
     },
-    activeDot: {
-      background: 'white'
-    }
+    activeDot: { background: 'white' }
   };
 
   return (
     <div style={styles.container}>
-      {/* Left Side - CSIR NPL Information */}
       <div style={styles.leftSide}>
-        {/* Header */}
         <div style={styles.header}>
           <div style={styles.logoContainer}>
-            {/* CSIR NPL Logo */}
             <div style={styles.logo}>
               <img src={logoImage} alt="CSIR-NPL Logo" style={styles.logoImg} />
             </div>
@@ -378,15 +484,12 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
             </div>
           </div>
         </div>
-
-        {/* Main Content Area */}
         <div style={styles.mainContent}>
-          {/* Navigation Arrows */}
-          <button 
-            style={{...styles.navButton, ...styles.navButtonLeft}}
+          <button
+            style={{ ...styles.navButton, ...styles.navButtonLeft }}
             onMouseEnter={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.7)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.5)'}
-            onClick={() => setCurrentImageIndex(prev => 
+            onClick={() => setCurrentImageIndex(prev =>
               prev === 0 ? carouselImages.length - 1 : prev - 1
             )}
           >
@@ -394,12 +497,11 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
             </svg>
           </button>
-          
-          <button 
-            style={{...styles.navButton, ...styles.navButtonRight}}
+          <button
+            style={{ ...styles.navButton, ...styles.navButtonRight }}
             onMouseEnter={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.7)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.5)'}
-            onClick={() => setCurrentImageIndex(prev => 
+            onClick={() => setCurrentImageIndex(prev =>
               prev === carouselImages.length - 1 ? 0 : prev + 1
             )}
           >
@@ -407,18 +509,16 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
-
-          {/* Image Carousel */}
           <div style={styles.imageContainer}>
             <div style={styles.imageWrapper}>
-              <img 
-                src={carouselImages[currentImageIndex]} 
-                alt="CSIR-NPL" 
+              <img
+                src={carouselImages[currentImageIndex]}
+                alt="CSIR-NPL"
                 style={styles.buildingImage}
               />
               <div style={styles.carouselDots}>
                 {carouselImages.map((_, index) => (
-                  <div 
+                  <div
                     key={index}
                     style={{
                       ...styles.carouselDot,
@@ -432,27 +532,22 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
           </div>
         </div>
       </div>
-
       {/* Right Side - SensorSync Portal */}
       <div style={styles.rightSide}>
-        {/* Portal Header */}
         <div style={styles.portalHeader}>
           <h1 style={styles.portalTitle}>SensorSync Portal</h1>
         </div>
-
-        {/* Auth Form */}
         <div style={styles.formContainer}>
           <div style={styles.formCard}>
             <h2 style={styles.formTitle}>
               {authMode === 'login' ? 'LOGIN' : 'REGISTER'}
             </h2>
-
             {error && (
-              <div style={styles.errorMessage}>
-                {error}
-              </div>
+              <div style={styles.errorMessage}>{error}</div>
             )}
-
+            {successMessage && (
+              <div style={styles.successMessage}>{successMessage}</div>
+            )}
             <form onSubmit={handleSubmit}>
               {/* Email ID */}
               <div style={styles.formGroup}>
@@ -465,12 +560,9 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
                   value={formData.emailId}
                   onChange={handleInputChange}
                   style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = 'white'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'}
                   required
                 />
               </div>
-
               {/* Full Name (Register only) */}
               {authMode === 'register' && (
                 <div style={styles.formGroup}>
@@ -481,12 +573,9 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
                     value={formData.fullName}
                     onChange={handleInputChange}
                     style={styles.input}
-                    onFocus={(e) => e.target.style.borderColor = 'white'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'}
                   />
                 </div>
               )}
-
               {/* Password */}
               <div style={styles.formGroup}>
                 <label style={styles.label}>
@@ -498,12 +587,9 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
                   value={formData.password}
                   onChange={handleInputChange}
                   style={styles.input}
-                  onFocus={(e) => e.target.style.borderColor = 'white'}
-                  onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'}
                   required
                 />
               </div>
-
               {/* Confirm Password (Register only) */}
               {authMode === 'register' && (
                 <div style={styles.formGroup}>
@@ -514,13 +600,10 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     style={styles.input}
-                    onFocus={(e) => e.target.style.borderColor = 'white'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'}
                   />
                 </div>
               )}
-
-              {/* Captcha */}
+              {/* Captcha Section */}
               <div style={styles.formGroup}>
                 <label style={styles.label}>
                   Captcha <span style={styles.required}>*</span>
@@ -532,36 +615,61 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
                     value={formData.captcha}
                     onChange={handleInputChange}
                     style={styles.captchaInput}
-                    onFocus={(e) => e.target.style.borderColor = 'white'}
-                    onBlur={(e) => e.target.style.borderColor = 'rgba(255, 255, 255, 0.3)'}
                     required
                   />
                   <div style={styles.captchaDisplay}>
-                    <span style={styles.captchaText}>
-                      {captchaText}
-                    </span>
+                    <span style={styles.captchaText}>{captcha.question}</span>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => window.location.reload()}
-                    style={styles.refreshButton}
-                    onMouseEnter={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.3)'}
-                    onMouseLeave={(e) => e.target.style.background = 'rgba(255, 255, 255, 0.2)'}
-                  >
-                    ↻
-                  </button>
                 </div>
-                <button
-                  type="button"
-                  style={styles.verifyButton}
-                  onMouseEnter={(e) => e.target.style.color = 'white'}
-                  onMouseLeave={(e) => e.target.style.color = '#93c5fd'}
-                >
-                  VERIFY
-                </button>
+                <div style={styles.captchaActionsRow}>
+                  <div style={styles.captchaActionsLeft}>
+                    <button
+                      type="button"
+                      style={styles.verifyButton}
+                      onClick={handleCaptchaVerify}
+                      onMouseEnter={(e) => e.target.style.color = 'white'}
+                      onMouseLeave={(e) => e.target.style.color = '#93c5fd'}
+                    >
+                      VERIFY
+                    </button>
+                    {captchaVerified === true && (
+                      <div style={{ color: 'lightgreen', fontSize: '13px', marginLeft: '10px' }}>
+                        Captcha correct!
+                      </div>
+                    )}
+                    {captchaVerified === false && (
+                      <div style={{ color: 'salmon', fontSize: '13px', marginLeft: '10px' }}>
+                        Wrong captcha, try again.
+                      </div>
+                    )}
+                  </div>
+                  <div style={styles.captchaActionsRight}>
+                    <button
+                      type="button"
+                      aria-label="Play audio captcha"
+                      title="Play audio captcha"
+                      onClick={handlePlayCaptchaAudio}
+                      style={styles.audioButton}
+                    >
+                      <span role="img" aria-label="audio">🔊</span>
+                    </button>
+                    <button
+                      type="button"
+                      aria-label="Refresh captcha"
+                      title="Refresh captcha"
+                      onClick={() => {
+                        window.speechSynthesis.cancel();
+                        setCaptcha(generateSmartCaptcha());
+                        setFormData({ ...formData, captcha: '' });
+                        setCaptchaVerified(null);
+                      }}
+                      style={styles.refreshButton}
+                    >
+                      ↻
+                    </button>
+                  </div>
+                </div>
               </div>
-
-              {/* Submit Button */}
               <button
                 type="submit"
                 style={styles.submitButton}
@@ -570,43 +678,45 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
               >
                 {authMode === 'register' ? 'CREATE ACCOUNT' : 'LOGIN'}
               </button>
-
-              {/* Additional Actions */}
               <div style={styles.actionButtons}>
                 {authMode === 'login' && (
                   <button
                     type="button"
                     style={styles.actionButton}
-                    onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                    onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
                   >
                     FORGOT PASSWORD
                   </button>
                 )}
-                
                 <button
                   type="button"
-                  onClick={() => setAuthMode(authMode === 'login' ? 'register' : 'login')}
+                  onClick={() => {
+                    setAuthMode(authMode === 'login' ? 'register' : 'login');
+                    setError('');
+                    setSuccessMessage('');
+                    setFormData({
+                      emailId: authMode === 'register' ? formData.emailId : '',
+                      password: '',
+                      fullName: '',
+                      confirmPassword: '',
+                      captcha: ''
+                    });
+                    setCaptcha(generateSmartCaptcha());
+                    setCaptchaVerified(null);
+                  }}
                   style={styles.actionButton}
-                  onMouseEnter={(e) => e.target.style.background = '#2563eb'}
-                  onMouseLeave={(e) => e.target.style.background = '#3b82f6'}
                 >
                   {authMode === 'login' ? 'NEW? REGISTER NOW' : 'ALREADY HAVE AN ACCOUNT'}
                 </button>
               </div>
             </form>
-
-            </div>
-            </div>
-
-            {/* Footer spacing */}
+          </div>
+        </div>
         <div style={styles.footer}></div>
       </div>
     </div>
   );
 };
 
-// Main App Component (unchanged)
 const App = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'dashboard'
   const [user, setUser] = useState(null);
@@ -620,7 +730,8 @@ const App = () => {
     setActiveSection('dashboard');
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await authPhpRequest({ action: 'logout' });
     setUser(null);
     setUserRole(null);
     setCurrentView('landing');
@@ -660,14 +771,13 @@ const App = () => {
 
   return (
     <div style={{ display: 'flex' }}>
-      <Sidebar 
-        activeSection={activeSection} 
+      <Sidebar
+        activeSection={activeSection}
         onSectionChange={handleSectionChange}
         userRole={userRole}
         user={user}
         onLogout={handleLogout}
       />
-      
       <div
         style={{
           marginLeft: '200px',
