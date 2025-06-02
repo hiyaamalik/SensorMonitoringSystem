@@ -25,10 +25,10 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
 
   // Array of image URLs for the carousel
   const carouselImages = [
-    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
-    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+    "https://candela-ptb.de/wp-content/uploads/2021/01/NPL2.jpg",
+    "https://www.nplindia.org/wp-content/uploads/2021/11/9.png",
+    "https://www.nplindia.org/wp-content/uploads/2023/04/DSC_2975-scaled.jpg",
+    "https://i.ytimg.com/vi/3593ek-BlB0/maxresdefault.jpg"
   ];
 
   useEffect(() => {
@@ -165,12 +165,12 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
     },
     imageContainer: {
       width: '100%',
-      height: '100%',
+      height: '80%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       padding: '16px',
-      marginTop: '16px'
+      
     },
     imageWrapper: {
       width: '100%',
@@ -596,18 +596,10 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
               </div>
             </form>
 
-            {/* Demo Credentials */}
-            {authMode === 'login' && (
-              <div style={styles.credentialsInfo}>
-                <strong>Demo Credentials:</strong><br />
-                Admin: admin@gmail.com / admin<br />
-                User: user@gmail.com / user
-              </div>
-            )}
-          </div>
-        </div>
+            </div>
+            </div>
 
-        {/* Footer spacing */}
+            {/* Footer spacing */}
         <div style={styles.footer}></div>
       </div>
     </div>
