@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from './components/admin/Sidebar'; 
 import Dashboard from './pages/admin/Dashboard';
 import RealTime from './pages/admin/RealTime';
@@ -9,8 +9,8 @@ import SensorActivity from './pages/admin/SensorActivity';
 import Profile from './pages/admin/Profile';
 import SensorMap from './pages/admin/SensorMap';
 import 'leaflet/dist/leaflet.css';
+import logoImage from './assets/image (9).png';
 
-// Your existing CSIR landing page component
 const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
   const [authMode, setAuthMode] = useState('login');
   const [formData, setFormData] = useState({
@@ -21,6 +21,25 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
     captcha: ''
   });
   const [error, setError] = useState('');
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Array of image URLs for the carousel
+  const carouselImages = [
+    "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    "https://images.unsplash.com/photo-1605276374104-dee2a0ed3cd6?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80",
+    "https://images.unsplash.com/photo-1600607687920-4e2a09cf159d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80"
+  ];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prevIndex) => 
+        prevIndex === carouselImages.length - 1 ? 0 : prevIndex + 1
+      );
+    }, 7000); // Change image every 7 seconds
+
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
 
   const handleInputChange = (e) => {
     setFormData({
@@ -43,10 +62,8 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
         setError('Invalid credentials. Please try again.');
       }
     } else {
-      // Registration logic (for demo, just show success)
       if (formData.emailId && formData.password && formData.confirmPassword) {
         if (formData.password === formData.confirmPassword) {
-          // For demo, register as user
           onAuthSuccess('user', { email: formData.emailId, name: formData.fullName || 'User' });
         } else {
           setError('Passwords do not match.');
@@ -89,48 +106,18 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
     logo: {
       width: '64px',
       height: '64px',
-      background: '#1e40af',
       borderRadius: '50%',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       position: 'relative',
-      border: '2px solid white'
-    },
-    logoInner: {
-      position: 'absolute',
-      inset: '4px',
       border: '2px solid white',
-      borderRadius: '50%'
+      overflow: 'hidden'
     },
-    logoInnermost: {
-      position: 'absolute',
-      inset: '12px',
-      border: '1px solid white',
-      borderRadius: '50%'
-    },
-    logoText: {
-      color: 'white',
-      fontSize: '12px',
-      fontWeight: 'bold'
-    },
-    logoAccent: {
-      position: 'absolute',
-      top: '-4px',
-      right: '-4px',
-      width: '24px',
-      height: '24px',
-      background: '#fb923c',
-      borderRadius: '50%',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    },
-    logoAccentInner: {
-      width: '12px',
-      height: '12px',
-      background: 'white',
-      borderRadius: '50%'
+    logoImg: {
+      width: '100%',
+      height: '100%',
+      objectFit: 'cover'
     },
     headerText: {
       color: 'white'
@@ -148,7 +135,10 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       flex: 1,
       background: 'white',
       position: 'relative',
-      overflow: 'hidden'
+      overflow: 'hidden',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
     },
     navButton: {
       position: 'absolute',
@@ -179,18 +169,23 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '32px'
+      padding: '16px',
+      marginTop: '16px'
     },
     imageWrapper: {
       width: '100%',
-      maxWidth: '512px'
+      height: '100%',
+      maxWidth: '800px',
+      position: 'relative',
+      overflow: 'hidden'
     },
     buildingImage: {
       width: '100%',
-      height: '320px',
+      height: '100%',
       objectFit: 'cover',
       borderRadius: '8px',
-      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)'
+      boxShadow: '0 10px 25px rgba(0, 0, 0, 0.1)',
+      transition: 'opacity 1s ease-in-out'
     },
     rightSide: {
       width: '384px',
@@ -344,6 +339,25 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
       borderRadius: '4px',
       fontSize: '12px',
       color: '#93c5fd'
+    },
+    carouselDots: {
+      position: 'absolute',
+      bottom: '20px',
+      left: '50%',
+      transform: 'translateX(-50%)',
+      display: 'flex',
+      gap: '8px'
+    },
+    carouselDot: {
+      width: '10px',
+      height: '10px',
+      borderRadius: '50%',
+      background: 'rgba(255, 255, 255, 0.5)',
+      cursor: 'pointer',
+      transition: 'background-color 0.3s'
+    },
+    activeDot: {
+      background: 'white'
     }
   };
 
@@ -356,12 +370,7 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
           <div style={styles.logoContainer}>
             {/* CSIR NPL Logo */}
             <div style={styles.logo}>
-              <div style={styles.logoInner}></div>
-              <div style={styles.logoInnermost}></div>
-              <div style={styles.logoText}>NPL</div>
-              <div style={styles.logoAccent}>
-                <div style={styles.logoAccentInner}></div>
-              </div>
+              <img src={logoImage} alt="CSIR-NPL Logo" style={styles.logoImg} />
             </div>
             <div style={styles.headerText}>
               <div style={styles.headerTextHindi}>सीएसआईआर-राष्ट्रीय भौतिक प्रयोगशाला</div>
@@ -377,6 +386,9 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
             style={{...styles.navButton, ...styles.navButtonLeft}}
             onMouseEnter={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.7)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.5)'}
+            onClick={() => setCurrentImageIndex(prev => 
+              prev === 0 ? carouselImages.length - 1 : prev - 1
+            )}
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
@@ -387,20 +399,35 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
             style={{...styles.navButton, ...styles.navButtonRight}}
             onMouseEnter={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.7)'}
             onMouseLeave={(e) => e.target.style.background = 'rgba(0, 0, 0, 0.5)'}
+            onClick={() => setCurrentImageIndex(prev => 
+              prev === carouselImages.length - 1 ? 0 : prev + 1
+            )}
           >
             <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
             </svg>
           </button>
 
-          {/* Building Image */}
+          {/* Image Carousel */}
           <div style={styles.imageContainer}>
             <div style={styles.imageWrapper}>
               <img 
-                src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2070&q=80" 
-                alt="CSIR-NPL Building" 
+                src={carouselImages[currentImageIndex]} 
+                alt="CSIR-NPL" 
                 style={styles.buildingImage}
               />
+              <div style={styles.carouselDots}>
+                {carouselImages.map((_, index) => (
+                  <div 
+                    key={index}
+                    style={{
+                      ...styles.carouselDot,
+                      ...(index === currentImageIndex ? styles.activeDot : {})
+                    }}
+                    onClick={() => setCurrentImageIndex(index)}
+                  />
+                ))}
+              </div>
             </div>
           </div>
         </div>
@@ -587,7 +614,7 @@ const CSIRSensorSyncPortal = ({ onLogin, onAuthSuccess }) => {
   );
 };
 
-// Main App Component
+// Main App Component (unchanged)
 const App = () => {
   const [currentView, setCurrentView] = useState('landing'); // 'landing', 'dashboard'
   const [user, setUser] = useState(null);
@@ -625,10 +652,8 @@ const App = () => {
       case 'analysis':
         return <Analysis />;
       case 'user':
-        // Only admin can access - but this won't be called for users since menu item won't exist
         return userRole === 'admin' ? <User /> : <Dashboard />;
       case 'sensoractivity':
-        // Only admin can access - but this won't be called for users since menu item won't exist
         return userRole === 'admin' ? <SensorActivity /> : <Dashboard />;
       case 'profile':
         return <Profile />;
@@ -637,12 +662,10 @@ const App = () => {
     }
   };
 
-  // Show CSIR landing page with authentication
   if (currentView === 'landing') {
     return <CSIRSensorSyncPortal onAuthSuccess={handleAuthSuccess} />;
   }
 
-  // Show dashboard (authenticated view)
   return (
     <div style={{ display: 'flex' }}>
       <Sidebar 
@@ -653,7 +676,6 @@ const App = () => {
         onLogout={handleLogout}
       />
       
-      {/* Main Content Area */}
       <div
         style={{
           marginLeft: '200px',
