@@ -17,7 +17,9 @@ const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) =
     if (userRole === 'admin') {
       baseItems.splice(-1, 0, // Insert before 'My Profile'
         { id: 'user', label: 'User Management' },
-        { id: 'sensoractivity', label: 'Sensor Management' }
+        { id: 'sensoractivity', label: 'Sensor Management' },
+        { id: 'sensorinfo', label:"Sensor Information"}
+
       );
     }
 
@@ -105,7 +107,7 @@ const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) =
             style={{
               display: 'flex',
               alignItems: 'center',
-              padding: '12px 16px',
+              padding: '8px 16px',
               margin: '2px 0',
               borderRadius: '8px',
               cursor: 'pointer',

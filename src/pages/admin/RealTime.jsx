@@ -1,5 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, AreaChart, Area, BarChart, Bar } from 'recharts';
+import {
+  LineChart, Line,
+  XAxis, YAxis,
+  CartesianGrid, Tooltip,
+  ResponsiveContainer,
+  AreaChart, Area,
+  BarChart, Bar
+} from 'recharts';
+
+// Sensor id ↔ Firebase type mapping
+const sensorTypeMap = {
+  1: "DHT11",
+  2: "DHT22",
+  3: "DHT12",
+  4: "DHT13",
+  5: "DHT14"
+};
+
+const sensors = [
+  { id: 1, name: "Sensor 1 (CSIR - PME)", location: "CSIR - PME" },
+  { id: 2, name: "Sensor 2 (CSIR - HRD)", location: "CSIR - HRD" },
+  { id: 3, name: "Sensor 3 (CSIR - LIB)", location: "CSIR - LIB" },
+  { id: 4, name: "Sensor 4 (CSIR - CAFETERIA)", location: "CSIR - CAFETERIA" },
+  { id: 5, name: "Sensor 5 (CSIR - OPP WING)", location: "CSIR - OPP WING)" }
+];
+
+const API_BASE = 'https://lostdevs.io/ctrl2/beans/rtdbms.php?type=';
 
 const RealTime = () => {
   const [activeSensor, setActiveSensor] = useState(1);
@@ -7,106 +33,83 @@ const RealTime = () => {
   const [humidityChartType, setHumidityChartType] = useState('area');
   const [tempData, setTempData] = useState([]);
   const [humidityData, setHumidityData] = useState([]);
-  const [currentTemp, setCurrentTemp] = useState(24);
-  const [currentHumidity, setCurrentHumidity] = useState(65);
-  
-  const sensors = [
-    { id: 1, name: "Sensor 1 (CSIR - PME)", baseTemp: 24, baseHumidity: 65, location: "CSIR - PME" },
-    { id: 2, name: "Sensor 2 (CSIR - HRD)", baseTemp: 26, baseHumidity: 68, location: "CSIR - HRD" },
-    { id: 3, name: "Sensor 3 (CSIR - LIB)", baseTemp: 22, baseHumidity: 70, location: "CSIR - LIB" },
-    { id: 4, name: "Sensor 4 (CSIR - CAFETERIA)", baseTemp: 0, baseHumidity: 0, location: "CSIR - CAFETERIA" },
-    { id: 5, name: "Sensor 5 (CSIR - OPP WING)", baseTemp: 25, baseHumidity: 62, location: "CSIR - OPP WING)" }
-  ];
+  const [currentTemp, setCurrentTemp] = useState('--');
+  const [currentHumidity, setCurrentHumidity] = useState('--');
+  const [loading, setLoading] = useState(true);
+
+  // Fade-in animation state
+  const [fadeIn, setFadeIn] = useState(false);
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      setFadeIn(true);
+    }, 100); // trigger fade-in after 100ms
+
+    return () => clearTimeout(timeout);
+  }, []);
 
   const activeSensorData = sensors.find(sensor => sensor.id === activeSensor);
 
-  // Initialize data
+  // Live Data Fetcher & Chart Updater
   useEffect(() => {
-    const initData = [];
-    const now = new Date();
-    for (let i = 9; i >= 0; i--) {
-      const time = new Date(now.getTime() - i * 5000);
-      const timeStr = time.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      
-      const baseTemp = activeSensorData.baseTemp;
-      const baseHumidity = activeSensorData.baseHumidity;
-      
-      if (activeSensorData.id === 4) {
-        // Offline sensor
-        initData.push({
-          time: timeStr,
-          temp: 0,
-          humidity: 0
-        });
-      } else {
-        initData.push({
-          time: timeStr,
-          temp: baseTemp + (Math.random() - 0.5) * 4,
-          humidity: baseHumidity + (Math.random() - 0.5) * 10
-        });
-      }
-    }
-    
-    const tempDataFormatted = initData.map(d => ({ time: d.time, value: Math.round(d.temp * 10) / 10 }));
-    const humidityDataFormatted = initData.map(d => ({ time: d.time, value: Math.round(d.humidity) }));
-    
-    setTempData(tempDataFormatted);
-    setHumidityData(humidityDataFormatted);
-    
-    if (activeSensorData.id === 4) {
-      setCurrentTemp(0);
-      setCurrentHumidity(0);
-    } else {
-      setCurrentTemp(tempDataFormatted[tempDataFormatted.length - 1].value);
-      setCurrentHumidity(humidityDataFormatted[humidityDataFormatted.length - 1].value);
-    }
-  }, [activeSensor]);
+    let interval;
+    let isMounted = true;
+    setLoading(true);
 
-  // Real-time data updates
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = new Date();
-      const timeStr = now.toLocaleTimeString('en-US', { 
-        hour12: false, 
-        hour: '2-digit', 
-        minute: '2-digit',
-        second: '2-digit'
-      });
-      
-      const baseTemp = activeSensorData.baseTemp;
-      const baseHumidity = activeSensorData.baseHumidity;
-      
-      let newTempValue, newHumidityValue;
-      
-      if (activeSensorData.id === 4) {
-        // Offline sensor
-        newTempValue = 0;
-        newHumidityValue = 0;
-      } else {
-        newTempValue = Math.round((baseTemp + (Math.random() - 0.5) * 4) * 10) / 10;
-        newHumidityValue = Math.round(baseHumidity + (Math.random() - 0.5) * 10);
-      }
-      
-      setTempData(prev => {
-        const newData = [...prev.slice(1), { time: timeStr, value: newTempValue }];
-        return newData;
-      });
-      
-      setHumidityData(prev => {
-        const newData = [...prev.slice(1), { time: timeStr, value: newHumidityValue }];
-        return newData;
-      });
-      
-      setCurrentTemp(newTempValue);
-      setCurrentHumidity(newHumidityValue);
-    }, 2000);
+    const fetchLiveData = async () => {
+      const sensorType = sensorTypeMap[activeSensor];
+      if (!sensorType) return;
 
-    return () => clearInterval(interval);
+      try {
+        const res = await fetch(`${API_BASE}${sensorType}`);
+        const data = await res.json();
+
+        if (data && data.success) {
+          const now = new Date();
+          const timeStr = now.toLocaleTimeString('en-US', {
+            hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit'
+          });
+
+          const tempC = typeof data.temperature_C === 'number' ? data.temperature_C : null;
+          const humidity = typeof data.humidity === 'number' ? data.humidity : null;
+
+          if (isMounted) {
+            setTempData(prev => {
+              const newData = [...prev, { time: timeStr, value: tempC }];
+              return newData.slice(-10);
+            });
+            setHumidityData(prev => {
+              const newData = [...prev, { time: timeStr, value: humidity }];
+              return newData.slice(-10);
+            });
+
+            setCurrentTemp(tempC !== null ? tempC : '--');
+            setCurrentHumidity(humidity !== null ? humidity : '--');
+            setLoading(false);
+          }
+        } else {
+          if (isMounted) {
+            setCurrentTemp('--');
+            setCurrentHumidity('--');
+            setLoading(false);
+          }
+        }
+      } catch (e) {
+        if (isMounted) {
+          setCurrentTemp('--');
+          setCurrentHumidity('--');
+          setLoading(false);
+        }
+      }
+    };
+
+    fetchLiveData();
+    interval = setInterval(fetchLiveData, 2000);
+
+    return () => {
+      clearInterval(interval);
+      isMounted = false;
+    };
   }, [activeSensor]);
 
   const renderTempChart = () => {
@@ -179,6 +182,135 @@ const RealTime = () => {
     );
   };
 
+  const styles = {
+    container: {
+      width: '100%',
+      maxWidth: '1200px',
+      margin: '0 auto',
+      fontFamily: 'Arial, sans-serif',
+      backgroundColor: '#dae2f7',
+      minHeight: '100vh',
+      opacity: fadeIn ? 1 : 0,
+      transform: fadeIn ? 'translateY(0)' : 'translateY(20px)',
+      transition: 'opacity 0.8s ease, transform 0.8s ease'
+    },
+    header: {
+      backgroundColor: '#1e3a8a',
+      padding: '20px',
+      textAlign: 'center'
+    },
+    headerTitle: {
+      color: 'white',
+      margin: '0',
+      fontSize: '24px',
+      fontWeight: 'bold'
+    },
+    sensorNavigation: {
+      display: 'flex',
+      justifyContent: 'flex-end',
+      alignItems: 'center',
+      gap: '10px',
+      margin: '20px'
+    },
+    sensorLabel: {
+      fontWeight: 'normal',
+      fontSize: '14px',
+      color: '#374151',
+      marginRight: '4px',
+      whiteSpace: 'nowrap'
+    },
+    sensorDropdown: {
+      width: '250px',
+      padding: '10px',
+      fontSize: '14px',
+      borderRadius: '6px',
+      border: '1px solid #ccc',
+      backgroundColor: '#fff',
+      color: '#1f2937'
+    },
+    chartsContainer: {
+      display: 'flex',
+      gap: '20px',
+      margin: '20px',
+      flexWrap: 'wrap'
+    },
+    chartCard: {
+      flex: '1',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      padding: '20px',
+      boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+      minWidth: '400px'
+    },
+    chartHeader: {
+      display: 'flex',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: '20px'
+    },
+    chartTitle: {
+      margin: '0',
+      fontSize: '18px',
+      color: '#1f2937',
+      fontWeight: '600'
+    },
+    chartControls: {
+      display: 'flex',
+      gap: '8px'
+    },
+    controlButton: {
+      backgroundColor: 'transparent',
+      border: '1px solid #d1d5db',
+      color: '#6b7280',
+      padding: '6px 12px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      cursor: 'pointer',
+      transition: 'all 0.2s ease'
+    },
+    controlButtonActive: {
+      backgroundColor: '#3b82f6',
+      border: '1px solid #3b82f6',
+      color: 'white',
+      padding: '6px 12px',
+      borderRadius: '4px',
+      fontSize: '12px',
+      cursor: 'pointer'
+    },
+    chartWrapper: {
+      width: '100%',
+      height: '200px'
+    },
+    currentValuesContainer: {
+      display: 'flex',
+      gap: '20px',
+      margin: '20px',
+      flexWrap: 'wrap'
+    },
+    currentValueCard: {
+      flex: '1',
+      backgroundColor: '#ffffff',
+      borderRadius: '8px',
+      padding: '30px 20px',
+      minWidth: '300px'
+    },
+    currentValueContent: {
+      textAlign: 'center'
+    },
+    currentValueTitle: {
+      color: '#6b7280',
+      fontSize: '14px',
+      marginBottom: '15px',
+      fontWeight: '500'
+    },
+    currentValueNumber: {
+      color: 'darkblue',
+      fontSize: '20px',
+      fontWeight: 'bold',
+      margin: '0'
+    }
+  };
+
   return (
     <div style={styles.container}>
       {/* Header */}
@@ -192,7 +324,7 @@ const RealTime = () => {
         <select
           id="sensor-select"
           value={activeSensor}
-          onChange={(e) => setActiveSensor(Number(e.target.value))}
+          onChange={e => setActiveSensor(Number(e.target.value))}
           style={styles.sensorDropdown}
         >
           {sensors.map(sensor => (
@@ -210,19 +342,19 @@ const RealTime = () => {
           <div style={styles.chartHeader}>
             <h3 style={styles.chartTitle}>Temperature graph</h3>
             <div style={styles.chartControls}>
-              <button 
+              <button
                 style={tempChartType === 'line' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setTempChartType('line')}
               >
                 Line
               </button>
-              <button 
+              <button
                 style={tempChartType === 'bar' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setTempChartType('bar')}
               >
                 Bar
               </button>
-              <button 
+              <button
                 style={tempChartType === 'area' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setTempChartType('area')}
               >
@@ -242,19 +374,19 @@ const RealTime = () => {
           <div style={styles.chartHeader}>
             <h3 style={styles.chartTitle}>Humidity graph</h3>
             <div style={styles.chartControls}>
-              <button 
+              <button
                 style={humidityChartType === 'line' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setHumidityChartType('line')}
               >
                 Line
               </button>
-              <button 
+              <button
                 style={humidityChartType === 'bar' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setHumidityChartType('bar')}
               >
                 Bar
               </button>
-              <button 
+              <button
                 style={humidityChartType === 'area' ? styles.controlButtonActive : styles.controlButton}
                 onClick={() => setHumidityChartType('area')}
               >
@@ -276,7 +408,7 @@ const RealTime = () => {
           <div style={styles.currentValueContent}>
             <h3 style={styles.currentValueTitle}>Current Temperature</h3>
             <div style={styles.currentValueNumber}>
-              {activeSensorData.id === 4 ? '--' : `${currentTemp}°C`}
+              {loading ? <span>Loading...</span> : (currentTemp !== '--' ? `${currentTemp}°C` : '--')}
             </div>
           </div>
         </div>
@@ -285,139 +417,13 @@ const RealTime = () => {
           <div style={styles.currentValueContent}>
             <h3 style={styles.currentValueTitle}>Current Humidity</h3>
             <div style={styles.currentValueNumber}>
-              {activeSensorData.id === 4 ? '--' : `${currentHumidity}%`}
+              {loading ? <span>Loading...</span> : (currentHumidity !== '--' ? `${currentHumidity}%` : '--')}
             </div>
           </div>
         </div>
       </div>
     </div>
   );
-};
-
-const styles = {
-  container: {
-    width: '100%',
-    maxWidth: '1200px',
-    margin: '0 auto',
-    fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f5f5f5',
-    minHeight: '100vh'
-  },
-  header: {
-    backgroundColor: '#1e3a8a',
-    padding: '20px',
-    textAlign: 'center'
-  },
-  headerTitle: {
-    color: 'white',
-    margin: '0',
-    fontSize: '24px',
-    fontWeight: 'bold'
-  },
-  sensorNavigation: {
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    gap: '10px',
-    margin: '20px'
-  },
-  sensorLabel: {
-    fontWeight: 'normal',
-    fontSize: '14px',
-    color: '#374151',
-    marginRight: '4px',
-    whiteSpace: 'nowrap'
-  },
-  sensorDropdown: {
-    width: '250px',
-    padding: '10px',
-    fontSize: '14px',
-    borderRadius: '6px',
-    border: '1px solid #ccc',
-    backgroundColor: '#fff',
-    color: '#1f2937'
-  },
-  chartsContainer: {
-    display: 'flex',
-    gap: '20px',
-    margin: '20px',
-    flexWrap: 'wrap'
-  },
-  chartCard: {
-    flex: '1',
-    backgroundColor: 'white',
-    borderRadius: '8px',
-    padding: '20px',
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-    minWidth: '400px'
-  },
-  chartHeader: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px'
-  },
-  chartTitle: {
-    margin: '0',
-    fontSize: '18px',
-    color: '#1f2937',
-    fontWeight: '600'
-  },
-  chartControls: {
-    display: 'flex',
-    gap: '8px'
-  },
-  controlButton: {
-    backgroundColor: 'transparent',
-    border: '1px solid #d1d5db',
-    color: '#6b7280',
-    padding: '6px 12px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    cursor: 'pointer',
-    transition: 'all 0.2s ease'
-  },
-  controlButtonActive: {
-    backgroundColor: '#3b82f6',
-    border: '1px solid #3b82f6',
-    color: 'white',
-    padding: '6px 12px',
-    borderRadius: '4px',
-    fontSize: '12px',
-    cursor: 'pointer'
-  },
-  chartWrapper: {
-    width: '100%',
-    height: '200px'
-  },
-  currentValuesContainer: {
-    display: 'flex',
-    gap: '20px',
-    margin: '20px',
-    flexWrap: 'wrap'
-  },
-  currentValueCard: {
-    flex: '1',
-    backgroundColor: '#1e40af',
-    borderRadius: '8px',
-    padding: '30px 20px',
-    minWidth: '300px'
-  },
-  currentValueContent: {
-    textAlign: 'center'
-  },
-  currentValueTitle: {
-    color: 'white',
-    margin: '0 0 15px 0',
-    fontSize: '18px',
-    fontWeight: '500'
-  },
-  currentValueNumber: {
-    color: 'white',
-    fontSize: '36px',
-    fontWeight: 'bold',
-    margin: '0'
-  }
 };
 
 export default RealTime;

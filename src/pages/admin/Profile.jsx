@@ -159,6 +159,21 @@ const Profile = () => {
 
   return (
     <>
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
+      
       <div style={styles.container}>
         <div style={styles.header}>
           <h1 style={styles.headerTitle}>My Profile</h1>
@@ -388,12 +403,14 @@ const Profile = () => {
 
 export default Profile;
 
-// Enhanced styling
 const styles = {
   container: {
     width: '100%',
     minHeight: '100vh',
-    backgroundColor: '#f0f4f8',
+    backgroundColor: '#dae2f7',
+    opacity: 0,
+    transform: 'translateY(10px)',
+    animation: 'fadeInUp 0.5s ease-out forwards'
   },
   header: {
     backgroundColor: '#1e3a8a',

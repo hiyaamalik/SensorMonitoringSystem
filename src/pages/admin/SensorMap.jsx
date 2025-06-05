@@ -10,7 +10,6 @@ import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { useEffect } from 'react';
 
-// Fix default icon issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: '',
@@ -56,6 +55,17 @@ const SensorMap = () => {
     <>
       <style>
         {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+
           .pulse-dot {
             width: 16px;
             height: 16px;
@@ -145,8 +155,11 @@ const styles = {
     maxWidth: '1200px',
     margin: '0 auto',
     fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#dae2f7',
     minHeight: '100vh',
+    opacity: 0,
+    transform: 'translateY(10px)',
+    animation: 'fadeInUp 0.5s ease-out forwards'
   },
   header: {
     backgroundColor: '#1e3a8a',

@@ -10,10 +10,11 @@ import {
 const styles = {
   root: {
     fontFamily: 'Arial, sans-serif',
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#dae2f7',
     margin: 0,
     padding: 0,
     minHeight: '100vh',
+    animation: 'fadeInUp 0.5s ease-out forwards'
   },
   container: {
     width: '100%',
@@ -36,17 +37,18 @@ const styles = {
   },
   
   tableContainer: {
-    maxWidth: '1200px',
-    margin: '32px auto',
-    backgroundColor: '#ffffff',
-    padding: '16px',
-    borderRadius: '8px',
+    backgroundColor: 'white',
     boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
     overflowX: 'auto',
-    boxSizing: 'border-box',
+    padding: '4px',
+    marginRight: '16px',
+    marginLeft: '16px',
+    marginBottom: '20px',
+    marginTop: '20px',
+    borderRadius: '8px',
   },
   table: {
-    minWidth: 650,
+    minWidth: 500,
   },
   tableHeaderCell: {
     fontWeight: 'bold',
@@ -62,6 +64,21 @@ const styles = {
 const SensorActivity = () => {
   return (
     <div style={styles.root}>
+      <style>
+        {`
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
+      
       <div style={styles.header}>
         <h1 style={styles.headerTitle}>Sensor Activity Log</h1>
       </div>
