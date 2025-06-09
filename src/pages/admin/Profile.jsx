@@ -18,7 +18,7 @@ const Profile = () => {
   const [errors, setErrors] = useState({});
   const [formData, setFormData] = useState({
     name: 'John Doe',
-    access: 'Admin', // This will be read-only as per requirement
+    access: 'Admin', 
     mobile: '9876543210',
     email: 'john@example.com',
     employeeNumber: 'EMP1234',
@@ -28,7 +28,6 @@ const Profile = () => {
     maxHumidity: 80,
   });
 
-  // Required fields that must have values
   const requiredFields = ['name', 'mobile', 'email', 'employeeNumber'];
 
   useEffect(() => {
@@ -40,19 +39,16 @@ const Profile = () => {
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
-  // Email validation regex
   const isValidEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
   };
 
-  // Phone number validation (Indian format - 10 digits)
   const isValidPhone = (phone) => {
     const phoneRegex = /^[6-9]\d{9}$/;
     return phoneRegex.test(phone.replace(/\s/g, ''));
   };
 
-  // Employee number validation (alphanumeric, minimum 3 characters)
   const isValidEmployeeNumber = (empNum) => {
     const empRegex = /^[A-Za-z0-9]{3,}$/;
     return empRegex.test(empNum);
@@ -61,14 +57,12 @@ const Profile = () => {
   const validateAll = () => {
     const newErrors = {};
 
-    // Validate required fields
     requiredFields.forEach(field => {
       if (!formData[field] || formData[field].toString().trim() === '') {
         newErrors[field] = `${field.charAt(0).toUpperCase() + field.slice(1)} is required`;
       }
     });
 
-    // Name validation (minimum 2 characters, only letters and spaces)
     if (formData.name && formData.name.trim()) {
       if (formData.name.trim().length < 2) {
         newErrors.name = 'Name must be at least 2 characters long';
@@ -77,28 +71,24 @@ const Profile = () => {
       }
     }
 
-    // Email validation
     if (formData.email && formData.email.trim()) {
       if (!isValidEmail(formData.email.trim())) {
         newErrors.email = 'Please enter a valid email address';
       }
     }
 
-    // Mobile number validation
     if (formData.mobile && formData.mobile.trim()) {
       if (!isValidPhone(formData.mobile.trim())) {
         newErrors.mobile = 'Please enter a valid 10-digit mobile number starting with 6-9';
       }
     }
 
-    // Employee number validation
     if (formData.employeeNumber && formData.employeeNumber.trim()) {
       if (!isValidEmployeeNumber(formData.employeeNumber.trim())) {
         newErrors.employeeNumber = 'Employee number must be at least 3 alphanumeric characters';
       }
     }
 
-    // Temperature validation
     const minTemp = Number(formData.minTemp);
     const maxTemp = Number(formData.maxTemp);
     
@@ -110,7 +100,6 @@ const Profile = () => {
       newErrors.temp = 'Temperature values must be between -50°C and 100°C';
     }
 
-    // Humidity validation
     const minHumidity = Number(formData.minHumidity);
     const maxHumidity = Number(formData.maxHumidity);
     
@@ -132,7 +121,7 @@ const Profile = () => {
     }
     console.log('Saved data:', formData);
     alert('Profile saved successfully!');
-    setEditMode(false); // Exit edit mode after successful save
+    setEditMode(false); 
   };
 
   const handleConfigSave = () => {
@@ -249,8 +238,7 @@ const Profile = () => {
           />
 
           <ThemeToggle />
-          
-          {/* Edit/Save Profile Button */}
+
           <Box sx={{ display: 'flex', gap: 2, mt: 2 }}>
             {!editMode ? (
               <Button 

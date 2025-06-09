@@ -8,6 +8,7 @@ import User from './pages/admin/Usermanagement';
 import SensorActivity from './pages/admin/SensorActivity';
 import Profile from './pages/admin/Profile';
 import SensorMap from './pages/admin/SensorMap';
+import DataValidation from './pages/admin/DataValidation.jsx'; 
 
 import 'leaflet/dist/leaflet.css';
 import SensorMetadata from './pages/admin/SensorInformation';
@@ -40,6 +41,8 @@ const App = () => {
         return <Analysis />;
       case 'user':
         return <User />;
+      case 'data validation':
+        return <DataValidation />;
       case 'sensoractivity':
         return <SensorActivity />;
       case 'sensorinfo':  

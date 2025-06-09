@@ -12,7 +12,7 @@ const HistoryReport = () => {
 
   useEffect(() => {
     setIsMounted(true);
-    setTimeout(() => setFadeIn(true), 100); // trigger fade-in after mount
+    setTimeout(() => setFadeIn(true), 100);
   }, []);
 
   const sensors = [
@@ -375,12 +375,10 @@ const HistoryReport = () => {
 
   return (
     <div style={styles.container}>
-      {/* Header */}
       <div style={styles.header}>
         <h1 style={styles.headerTitle}>History and Report</h1>
       </div>
 
-      {/* Sensor Dropdown */}
       <div style={styles.sensorNavigation}>
         <label htmlFor="sensor-select" style={styles.sensorLabel}>Select Sensor:</label>
         <select
@@ -397,7 +395,6 @@ const HistoryReport = () => {
         </select>
       </div>
 
-      {/* Date Range and Download Section */}
       <div style={styles.dateRangeContainer}>
         <div style={styles.dateInputGroup}>
           <input
@@ -422,7 +419,6 @@ const HistoryReport = () => {
         </button>
       </div>
 
-      {/* Data Table Section */}
       <div style={styles.dataTableContainer}>
         <div style={styles.tableWrapper}>
           <div style={styles.tableScrollContainer}>
@@ -493,7 +489,6 @@ const HistoryReport = () => {
           </div>
         </div>
 
-        {/* Humidity Graph */}
         <div style={styles.chartCard}>
           <div style={styles.chartHeader}>
             <h3 style={styles.chartTitle}>Humidity graph of timespan</h3>

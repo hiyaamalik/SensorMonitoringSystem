@@ -8,7 +8,7 @@ import {
   BarChart, Bar
 } from 'recharts';
 
-// Sensor id ↔ Firebase type mapping
+
 const sensorTypeMap = {
   1: "DHT11",
   2: "DHT22",
@@ -37,20 +37,18 @@ const RealTime = () => {
   const [currentHumidity, setCurrentHumidity] = useState('--');
   const [loading, setLoading] = useState(true);
 
-  // Fade-in animation state
   const [fadeIn, setFadeIn] = useState(false);
 
   useEffect(() => {
     const timeout = setTimeout(() => {
       setFadeIn(true);
-    }, 100); // trigger fade-in after 100ms
+    }, 100); 
 
     return () => clearTimeout(timeout);
   }, []);
 
   const activeSensorData = sensors.find(sensor => sensor.id === activeSensor);
 
-  // Live Data Fetcher & Chart Updater
   useEffect(() => {
     let interval;
     let isMounted = true;
@@ -318,7 +316,6 @@ const RealTime = () => {
         <h1 style={styles.headerTitle}>Real Time</h1>
       </div>
 
-      {/* Sensor Dropdown */}
       <div style={styles.sensorNavigation}>
         <label htmlFor="sensor-select" style={styles.sensorLabel}>Select Sensor:</label>
         <select
@@ -335,9 +332,8 @@ const RealTime = () => {
         </select>
       </div>
 
-      {/* Charts Section */}
       <div style={styles.chartsContainer}>
-        {/* Temperature Graph */}
+
         <div style={styles.chartCard}>
           <div style={styles.chartHeader}>
             <h3 style={styles.chartTitle}>Temperature graph</h3>
@@ -369,7 +365,6 @@ const RealTime = () => {
           </div>
         </div>
 
-        {/* Humidity Graph */}
         <div style={styles.chartCard}>
           <div style={styles.chartHeader}>
             <h3 style={styles.chartTitle}>Humidity graph</h3>
@@ -402,7 +397,6 @@ const RealTime = () => {
         </div>
       </div>
 
-      {/* Current Values Section */}
       <div style={styles.currentValuesContainer}>
         <div style={styles.currentValueCard}>
           <div style={styles.currentValueContent}>

@@ -10,7 +10,7 @@ const Analysis = () => {
     { id: 2, name: "Sensor 2 (CSIR - HRD)", baseTemp: 26, baseHumidity: 68, location: "CSIR - HRD" },
     { id: 3, name: "Sensor 3 (CSIR - LIB)", baseTemp: 22, baseHumidity: 70, location: "CSIR - LIB" },
     { id: 4, name: "Sensor 4 (CSIR - CAFETERIA)", baseTemp: 0, baseHumidity: 0, location: "CSIR - CAFETERIA" },
-    { id: 5, name: "Sensor 5 (CSIR - OPP WING)", baseTemp: 25, baseHumidity: 62, location: "CSIR - OPP WING" }
+    { id: 5, name: "Sensor 5 (CSIR - OPP WING)", baseTemp: 25, baseHumidity: 62, location: "CSIR - OPP WING)" }
   ];
 
   const generateAnalysisData = (sensorId, selectedDay) => {
@@ -33,6 +33,7 @@ const Analysis = () => {
 
     const baseTemp = sensor.baseTemp;
     const baseHumidity = sensor.baseHumidity;
+
     const dateVariation = selectedDay.getDate() * 0.1;
     
     return {
@@ -54,19 +55,22 @@ const Analysis = () => {
   const generateCalendarData = () => {
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
+
     const firstDay = new Date(year, month, 1);
     const lastDay = new Date(year, month + 1, 0);
     const startDate = new Date(firstDay);
-    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1);
+    startDate.setDate(startDate.getDate() - firstDay.getDay() + 1); // Monday start
     
     const calendarDays = [];
     const today = new Date();
+    
     
     for (let week = 0; week < 6; week++) {
       const weekDays = [];
       for (let day = 0; day < 7; day++) {
         const date = new Date(startDate);
         date.setDate(startDate.getDate() + (week * 7) + day);
+        
         weekDays.push({
           date: date,
           day: date.getDate(),
@@ -81,7 +85,11 @@ const Analysis = () => {
   };
 
   const calendarData = generateCalendarData();
-  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const monthNames = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+  ];
+  
   const weekDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const navigateMonth = (direction) => {
@@ -96,21 +104,6 @@ const Analysis = () => {
 
   return (
     <div style={styles.container}>
-      <style>
-        {`
-          @keyframes fadeInUp {
-            from {
-              opacity: 0;
-              transform: translateY(10px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
-      
       <div style={styles.header}>
         <h1 style={styles.headerTitle}>Analysis</h1>
       </div>
@@ -124,7 +117,9 @@ const Analysis = () => {
           style={styles.sensorDropdown}
         >
           {sensors.map(sensor => (
-            <option key={sensor.id} value={sensor.id}>{sensor.name}</option>
+            <option key={sensor.id} value={sensor.id}>
+              {sensor.name}
+            </option>
           ))}
         </select>
       </div>
@@ -133,17 +128,29 @@ const Analysis = () => {
         <div style={styles.leftColumn}>
           <div style={styles.calendarContainer}>
             <div style={styles.calendarNavigation}>
-              <button style={styles.navButton} onClick={() => navigateMonth(-1)}>&#8249;</button>
+              <button 
+                style={styles.navButton}
+                onClick={() => navigateMonth(-1)}
+              >
+                &#8249;
+              </button>
               <div style={styles.monthYear}>
                 {monthNames[currentDate.getMonth()]} {currentDate.getFullYear()}
               </div>
-              <button style={styles.navButton} onClick={() => navigateMonth(1)}>&#8250;</button>
+              <button 
+                style={styles.navButton}
+                onClick={() => navigateMonth(1)}
+              >
+                &#8250;
+              </button>
             </div>
+
             <div style={styles.calendarHeader}>
               {weekDays.map(day => (
                 <div key={day} style={styles.calendarWeekDay}>{day}</div>
               ))}
             </div>
+
             <div style={styles.calendarGrid}>
               {calendarData.map((week, weekIndex) => (
                 week.map((day, dayIndex) => (
@@ -169,13 +176,13 @@ const Analysis = () => {
           <div style={styles.cardRow}>
             <div style={styles.analysisCard}>
               <div style={styles.cardContent}>
-                <div style={styles.cardTitle}>Min temperature</div>
+                <div style={styles.cardTitle}>Min temperature </div>
                 <div style={styles.cardValue}>{analysisData.minTemp}</div>
               </div>
             </div>
             <div style={styles.analysisCard}>
               <div style={styles.cardContent}>
-                <div style={styles.cardTitle}>Max temperature</div>
+                <div style={styles.cardTitle}>Max temperature </div>
                 <div style={styles.cardValue}>{analysisData.maxTemp}</div>
               </div>
             </div>
@@ -187,27 +194,29 @@ const Analysis = () => {
             </div>
           </div>
 
+          
           <div style={styles.cardRow}>
             <div style={styles.analysisCard}>
               <div style={styles.cardContent}>
-                <div style={styles.cardTitle}>Min humidity</div>
+                <div style={styles.cardTitle}>Min humidity </div>
                 <div style={styles.cardValue}>{analysisData.minHumidity}</div>
               </div>
             </div>
             <div style={styles.analysisCard}>
               <div style={styles.cardContent}>
-                <div style={styles.cardTitle}>Max humidity</div>
+                <div style={styles.cardTitle}>Max humidity </div>
                 <div style={styles.cardValue}>{analysisData.maxHumidity}</div>
               </div>
             </div>
             <div style={styles.analysisCard}>
               <div style={styles.cardContent}>
-                <div style={styles.cardTitle}>Avg humidity</div>
+                <div style={styles.cardTitle}>Avg humidity </div>
                 <div style={styles.cardValue}>{analysisData.avgHumidity}</div>
               </div>
             </div>
           </div>
 
+          
           <div style={styles.bottomCardsContainer}>
             <div style={styles.bottomCardRow}>
               <div style={styles.largeCard}>
@@ -223,6 +232,7 @@ const Analysis = () => {
                 </div>
               </div>
             </div>
+
             <div style={styles.bottomCardRow}>
               <div style={styles.largeCard}>
                 <div style={styles.cardContent}>
@@ -232,7 +242,7 @@ const Analysis = () => {
               </div>
               <div style={styles.largeCard}>
                 <div style={styles.cardContent}>
-                  <div style={styles.cardTitle}>Variance Humidity</div>
+                  <div style={styles.cardTitle}>variance Humidity</div>
                   <div style={styles.cardValue}>{analysisData.varianceHumidity}</div>
                 </div>
               </div>
@@ -251,8 +261,7 @@ const styles = {
     margin: '0 auto',
     fontFamily: 'Arial, sans-serif',
     backgroundColor: '#dae2f7',
-    minHeight: '100vh',
-    animation: 'fadeInUp 0.5s ease-out forwards'
+    minHeight: '100vh'
   },
   header: {
     backgroundColor: '#1e3a8a',
@@ -276,7 +285,8 @@ const styles = {
     fontWeight: 'normal',
     fontSize: '14px',
     color: '#374151',
-    marginRight: '4px'
+    marginRight: '4px',
+    whiteSpace: 'nowrap'
   },
   sensorDropdown: {
     width: '250px',
@@ -407,19 +417,20 @@ const styles = {
     gap: '15px'
   },
   cardContent: {
-    padding: '20px',
+    padding: '10px',
     display: 'flex',
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    height: '100%',
+    height: '80%',
     textAlign: 'center'
   },
   cardTitle: {
     fontSize: '12px',
     color: '#374151',
     marginBottom: '8px',
-    fontWeight: '500'
+    fontWeight: '500',
+    lineHeight: '1.3'
   },
   cardValue: {
     fontSize: '18px',

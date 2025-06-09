@@ -10,12 +10,14 @@ const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) =
       { id: 'history', label: 'History & Report' },
       { id: 'map', label: 'Map' },
       { id: 'analysis', label: 'Analysis' },
+      { id: 'data validation', label: 'Data Validation' },
       { id: 'profile', label: 'My Profile' }
     ];
 
-    // Add admin-only items ONLY if user is admin
+
+    
     if (userRole === 'admin') {
-      baseItems.splice(-1, 0, // Insert before 'My Profile'
+      baseItems.splice(-1, 0, 
         { id: 'user', label: 'User Management' },
         { id: 'sensoractivity', label: 'Sensor Management' },
         { id: 'sensorinfo', label:"Sensor Information"}
@@ -23,7 +25,7 @@ const Sidebar = ({ activeSection, onSectionChange, userRole, user, onLogout }) =
       );
     }
 
-    // Add logout at the end
+    
     baseItems.push({ id: 'logout', label: 'Log out' });
 
     return baseItems;
